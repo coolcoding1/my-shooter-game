@@ -1,0 +1,74 @@
+import pygame
+import random
+
+# initialize Pygame
+pygame.init()
+
+# set up the screen
+screen = pygame.display.set_mode((800, 600))
+pygame.display.set_caption("Shooter Game")
+
+# set up the player character
+player_img = pygame.image.load("player.png")
+player_x = 400
+player_y = 500
+
+# set up the enemy characters
+enemy_img = pygame.image.load("enemy.png")
+enemy_x = random.randint(0, 800)
+enemy_y = random.randint(50, 150)
+
+# set up the bullet
+bullet_img = pygame.image.load("bullet.png")
+bullet_x = 0
+bullet_y = 500
+bullet_state = "ready"
+
+# main game loop
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+        # check for keyboard input
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_LEFT:
+                player_x -= 5
+            elif event.key == pygame.K_RIGHT:
+                player_x += 5
+            elif event.key == pygame.K_SPACE:
+                if bullet_state == "ready":
+                    bullet_x = player_x + 16
+                    bullet_y = player_y - 32
+                    bullet_state = "fire"
+
+    # move the enemy
+    enemy_y += 3
+    if enemy_y > 600:
+        enemy_x = random.randint(0, 800)
+        enemy_y = random.randint(50, 150)
+
+    # move the bullet
+    if bullet_state == "fire":
+        bullet_y -= 10
+        if bullet_y < 0:
+            bullet_state = "ready"
+
+    # check for collision between the bullet and the enemy
+    if bullet_state == "fire" and enemy_x - 32 < bullet_x < enemy_x + 32 and enemy_y - 32 < bullet_y < enemy_y + 32:
+        enemy_x = random.randint(0, 800)
+        enemy_y = random.randint(50, 150)
+        bullet_state = "ready"
+
+    # draw the objects on the screen
+    screen.fill((0, 0, 0))
+    screen.blit(player_img, (player_x, player_y))
+    screen.blit(enemy_img, (enemy_x, enemy_y))
+    if bullet_state == "fire":
+        screen.blit(bullet_img, (bullet_x, bullet_y))
+
+    pygame.display.update()
+
+# quit Pygame
+pygame.quit()
